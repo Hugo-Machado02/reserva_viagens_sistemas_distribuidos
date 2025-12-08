@@ -19,6 +19,10 @@ public class Quarto {
     @Column(nullable = false)
     private String tipo;
 
+    @NotNull(message = "Número do quarto é obrigatório")
+    @Column(nullable = false, unique = true)
+    private Integer numero;
+
     @NotNull(message = "Capacidade é obrigatória")
     @Column(nullable = false)
     private Integer capacidade;
@@ -39,8 +43,9 @@ public class Quarto {
     public Quarto() {
     }
 
-    public Quarto(String tipo, Integer capacidade, BigDecimal valorReserva, Hotel hotel) {
+    public Quarto(String tipo, Integer numero, Integer capacidade, BigDecimal valorReserva, Hotel hotel) {
         this.tipo = tipo;
+        this.numero = numero;
         this.capacidade = capacidade;
         this.valorReserva = valorReserva;
         this.hotel = hotel;
@@ -60,6 +65,14 @@ public class Quarto {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public Integer getNumero() {
+        return numero;
+    }
+
+    public void setNumero(Integer numero) {
+        this.numero = numero;
     }
 
     public Integer getCapacidade() {
