@@ -9,4 +9,7 @@ import java.util.List;
 public interface QuartoRepository extends JpaRepository<Quarto, Long> {
     List<Quarto> findByHotelId(Long hotelId);
     List<Quarto> findByDisponivel(Boolean disponivel);
+    List<Quarto> findByHotelIdAndDisponivel(Long hotelId, Boolean disponivel);
+    List<Quarto> findByTipoAndDisponivel(String tipo, Boolean disponivel);
+    List<Quarto> findByHotelCidadeAndDisponivel(String cidade, Boolean disponivel);
 }
