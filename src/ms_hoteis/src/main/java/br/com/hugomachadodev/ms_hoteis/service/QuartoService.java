@@ -1,61 +1,88 @@
 package br.com.hugomachadodev.ms_hoteis.service;
 
+import br.com.hugomachadodev.ms_hoteis.dto.QuartoDTO;
 import br.com.hugomachadodev.ms_hoteis.exception.ResourceNotFoundException;
-import br.com.hugomachadodev.ms_hoteis.model.Hotel;
 import br.com.hugomachadodev.ms_hoteis.model.Quarto;
 import br.com.hugomachadodev.ms_hoteis.repository.QuartoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class QuartoService {
 
-    @Autowired
-    private QuartoRepository quartoRepository;
+    private final QuartoRepository repository;
+    private final HotelService hotelService;
 
-    @Autowired
-    private HotelService hotelService;
-
-    public List<Quarto> listarTodos() {
-        return quartoRepository.findAll();
+    public QuartoService(QuartoRepository repository, HotelService hotelService) {
+        this.repository = repository;
+        this.hotelService = hotelService;
     }
 
-    public Quarto buscarPorId(Long id) {
-        return quartoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Quarto não encontrado com id: " + id));
-    }
-
-    public List<Quarto> buscarPorHotel(Long hotelId) {
+    public List<QuartoDTO> buscarPorHotel(Long hotelId) {
         hotelService.buscarPorId(hotelId);
-        return quartoRepository.findByHotelId(hotelId);
+        return repository.findByHotelId(hotelId).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<Quarto> buscarDisponiveis() {
-        return quartoRepository.findByDisponivel(true);
+    public List<QuartoDTO> buscarQuartosDisponiveisPorHotel(Long hotelId) {
+        hotelService.buscarPorId(hotelId);
+        return repository.findByHotelIdAndDisponivel(hotelId, true).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public QuartoDTO buscarPorId(Long id) {
+        return toDTO(buscarEntity(id));
+    }
+
+    public List<QuartoDTO> buscarPorTipo(String tipo) {
+        return repository.findByTipoAndDisponivel(tipo, true).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public List<QuartoDTO> buscarQuartosDisponiveisPorCidade(String cidade) {
+        return repository.findByHotelCidadeAndDisponivel(cidade, true).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Transactional
-    public Quarto criar(Long hotelId, Quarto quarto) {
-        Hotel hotel = hotelService.buscarPorId(hotelId);
-        quarto.setHotel(hotel);
-        return quartoRepository.save(quarto);
+    public QuartoDTO criar(Long hotelId, QuartoDTO dto) {
+        Quarto quarto = toEntity(dto);
+        quarto.setHotel(hotelService.buscarEntity(hotelId));
+        return toDTO(repository.save(quarto));
     }
 
     @Transactional
-    public Quarto atualizar(Long id, Quarto quartoAtualizado) {
-        Quarto quarto = buscarPorId(id);
-        quarto.setTipo(quartoAtualizado.getTipo());
-        quarto.setCapacidade(quartoAtualizado.getCapacidade());
-        quarto.setValorReserva(quartoAtualizado.getValorReserva());
-        quarto.setDisponivel(quartoAtualizado.getDisponivel());
-        return quartoRepository.save(quarto);
+    public QuartoDTO atualizar(Long id, QuartoDTO dto) {
+        Quarto quarto = buscarEntity(id);
+        quarto.setTipo(dto.getTipo());
+        quarto.setNumero(dto.getNumero());
+        quarto.setCapacidade(dto.getCapacidade());
+        quarto.setValorReserva(dto.getValorReserva());
+        quarto.setDisponivel(dto.getDisponivel());
+        return toDTO(repository.save(quarto));
     }
 
     @Transactional
     public void deletar(Long id) {
-        Quarto quarto = buscarPorId(id);
-        quartoRepository.delete(quarto);
+        repository.delete(buscarEntity(id));
+    }
+
+    private Quarto buscarEntity(Long id) {
+        return repository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Quarto não encontrado com id: " + id));
+    }
+
+    private QuartoDTO toDTO(Quarto q) {
+        return new QuartoDTO(q.getId(), q.getTipo(), q.getNumero(), q.getCapacidade(), 
+                            q.getValorReserva(), q.getDisponivel(), 
+                            q.getHotel().getId(), q.getHotel().getNome(), q.getHotel().getCidade());
+    }
+
+    private Quarto toEntity(QuartoDTO dto) {
+        Quarto q = new Quarto();
+        q.setTipo(dto.getTipo());
+        q.setNumero(dto.getNumero());
+        q.setCapacidade(dto.getCapacidade());
+        q.setValorReserva(dto.getValorReserva());
+        q.setDisponivel(dto.getDisponivel() != null ? dto.getDisponivel() : true);
+        return q;
     }
 }

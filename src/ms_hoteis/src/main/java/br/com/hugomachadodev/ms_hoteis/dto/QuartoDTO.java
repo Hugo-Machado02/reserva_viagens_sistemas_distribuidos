@@ -1,54 +1,47 @@
-package br.com.hugomachadodev.ms_hoteis.model;
+package br.com.hugomachadodev.ms_hoteis.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "quartos")
-public class Quarto {
+public class QuartoDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Tipo do quarto é obrigatório")
-    @Column(nullable = false)
     private String tipo;
 
     @NotNull(message = "Número do quarto é obrigatório")
-    @Column(nullable = false, unique = true)
     private Integer numero;
 
     @NotNull(message = "Capacidade é obrigatória")
-    @Column(nullable = false)
     private Integer capacidade;
 
     @NotNull(message = "Valor da reserva é obrigatório")
     @Positive(message = "Valor deve ser positivo")
-    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valorReserva;
 
-    @Column(nullable = false)
-    private Boolean disponivel = true;
+    private Boolean disponivel;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hotel_id", nullable = false)
-    @JsonIgnore
-    private Hotel hotel;
+    private Long hotelId;
+    private String hotelNome;
+    private String hotelCidade;
 
-    public Quarto() {
+    public QuartoDTO() {
     }
 
-    public Quarto(String tipo, Integer numero, Integer capacidade, BigDecimal valorReserva, Hotel hotel) {
+    public QuartoDTO(Long id, String tipo, Integer numero, Integer capacidade, BigDecimal valorReserva, 
+                    Boolean disponivel, Long hotelId, String hotelNome, String hotelCidade) {
+        this.id = id;
         this.tipo = tipo;
         this.numero = numero;
         this.capacidade = capacidade;
         this.valorReserva = valorReserva;
-        this.hotel = hotel;
+        this.disponivel = disponivel;
+        this.hotelId = hotelId;
+        this.hotelNome = hotelNome;
+        this.hotelCidade = hotelCidade;
     }
 
     public Long getId() {
@@ -99,11 +92,27 @@ public class Quarto {
         this.disponivel = disponivel;
     }
 
-    public Hotel getHotel() {
-        return hotel;
+    public Long getHotelId() {
+        return hotelId;
     }
 
-    public void setHotel(Hotel hotel) {
-        this.hotel = hotel;
+    public void setHotelId(Long hotelId) {
+        this.hotelId = hotelId;
+    }
+
+    public String getHotelNome() {
+        return hotelNome;
+    }
+
+    public void setHotelNome(String hotelNome) {
+        this.hotelNome = hotelNome;
+    }
+
+    public String getHotelCidade() {
+        return hotelCidade;
+    }
+
+    public void setHotelCidade(String hotelCidade) {
+        this.hotelCidade = hotelCidade;
     }
 }
