@@ -29,11 +29,14 @@ Sistema distribuído para reserva de viagens utilizando arquitetura de microsser
 ### 1. Configurar Banco de Dados
 
 Importe o backup do banco de dados:
-```bash
-mysql -u root -p < src/bkp_db/backup_db.sql
-```
+1. Abra o MySql Workbench
+2. Logue com seu Usuário e Senha
+3. Depois vá em Server > Data Import
+4. Selecione Import from Self-Contained File
+5. Selecione o arquivo de Backup
+6. Clique em Start Import
 
-Este comando criará automaticamente os bancos:
+Este procedimento criará automaticamente os bancos:
 - `voos_db` - com tabelas de voos e assentos
 - `hoteis_db` - com tabelas de hotéis e quartos  
 - `reservas_db` - com tabela de reservas
