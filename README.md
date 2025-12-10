@@ -1,17 +1,22 @@
 # Sistema de Reserva de Viagens - Microsserviços Distribuídos
 
-Sistema distribuído para reserva de viagens utilizando arquitetura de microsserviços com Spring Boot e React.
+Sistema distribuído para reserva de viagens utilizando arquitetura de microsserviços com Spring Boot, Spring Cloud Gateway e React.
 
 ## 🏗️ Arquitetura
 
 ### Backend (Microsserviços)
-- **ms_voos** (Porta 8081) - Gerenciamento de voos e assentos
-- **ms_hoteis** (Porta 8082) - Gerenciamento de hotéis e quartos
-- **ms_reservas** (Porta 8083) - Gerenciamento de reservas integrando voos e hotéis
-- **ms_eureka** (Porta 8761) - Service Discovery
+- **ms_eureka** (Porta 8761) - Service Discovery (Eureka Server)
+- **ms_gateway** (Porta 8080) - API Gateway (Spring Cloud Gateway)
+- **ms_voos** - Gerenciamento de voos e assentos
+  - Instância 1: Porta 8764
+  - Instância 2: Porta 8765
+- **ms_hoteis** - Gerenciamento de hotéis e quartos
+  - Instância 1: Porta 8762
+  - Instância 2: Porta 8763
+- **ms_reservas** (Porta 8766) - Gerenciamento de reservas integrando voos e hotéis
 
 ### Frontend
-- **Gateway React** (Porta 5173) - Interface web com log de requisições em tempo real
+- **Gateway React** (Porta 5173) - Interface web com comunicação via API Gateway
 
 ## 🚀 Como Executar
 
@@ -30,128 +35,162 @@ CREATE DATABASE ms_hoteis;
 CREATE DATABASE reservas_db;
 ```
 
-Configure os usuário e as senhas nos arquivos `application.properties` de cada microsserviço:
-- `src/backend/ms_voos/src/main/resources/application.properties`
-- `src/backend/ms_hoteis/src/main/resources/application.properties`
+Configure o usuário e senha no arquivo:
 - `src/backend/ms_reservas/src/main/resources/application.properties`
 
-### 2. Iniciar Microsserviços Backend
+### 2. Execução Automática (Recomendado)
 
-**IMPORTANTE:** Inicie os serviços na ordem abaixo:
-
-#### 1. Eureka Server (Service Discovery)
+Execute o script que inicia todos os serviços automaticamente:
 ```bash
-cd src/backend/ms_eureka
-mvn clean package
-java -jar target/ms_eureka-0.0.1-SNAPSHOT.jar
-```
-Aguarde até ver a mensagem de inicialização completa.
-Acesse: http://localhost:8761
-
-#### 2. MS Voos
-```bash
-cd src/backend/ms_voos
-mvn clean package
-java -jar target/ms_voos-0.0.1-SNAPSHOT.jar
+cd instancias
+start_all_services.bat
 ```
 
-#### 3. MS Hotéis
+Este script iniciará na ordem correta:
+1. Eureka Server
+2. API Gateway
+3. MS Hotéis (2 instâncias)
+4. MS Voos (2 instâncias)
+5. MS Reservas
+6. Frontend React
+
+### 3. Execução Manual (Opcional)
+
+Se preferir iniciar manualmente, execute na ordem:
+
+#### 1. Eureka Server
 ```bash
-cd src/backend/ms_hoteis
-mvn clean package
-java -jar target/ms_hoteis-0.0.1-SNAPSHOT.jar
+cd instancias
+01_start_eureka.bat
 ```
 
-#### 4. MS Reservas
+#### 2. API Gateway
 ```bash
-cd src/backend/ms_reservas
-mvn clean package
-java -jar target/ms_reservas-0.0.1-SNAPSHOT.jar
+cd instancias
+02_start_gateway.bat
 ```
 
-**Verificação:** Acesse http://localhost:8761 e confirme que os 3 microsserviços aparecem registrados.
-
-### 3. Iniciar Frontend Gateway
-
+#### 3. Microsserviços (qualquer ordem)
 ```bash
-cd src/frontend/gateway
-npm install
-npm run dev
+cd instancias
+03_start_hoteis_instancia1.bat
+04_start_hoteis_instancia2.bat
+05_start_voos_instancia1.bat
+06_start_voos_instancia2.bat
+07_start_reservas.bat
 ```
 
-Acesse: http://localhost:5173
+#### 4. Frontend
+```bash
+cd instancias
+08_start_frontend.bat
+```
+
+**Verificação:** Acesse http://localhost:8761 e confirme que todos os microsserviços aparecem registrados.
 
 ## 📡 Endpoints da API
 
-### MS Voos (8081)
-- `GET /api/voos` - Listar todos os voos
-- `GET /api/voos/{id}` - Buscar voo por ID
-- `POST /api/voos` - Criar novo voo
-- `PUT /api/voos/{id}` - Atualizar voo
-- `DELETE /api/voos/{id}` - Deletar voo
+**Todas as requisições devem ser feitas através do API Gateway (porta 8080)**
 
-### MS Hotéis (8082)
-- `GET /api/hoteis` - Listar todos os hotéis
-- `GET /api/hoteis/{id}` - Buscar hotel por ID
-- `POST /api/hoteis` - Criar novo hotel
-- `PUT /api/hoteis/{id}` - Atualizar hotel
-- `DELETE /api/hoteis/{id}` - Deletar hotel
+### MS Voos (via Gateway)
+- `GET http://localhost:8080/api/voos` - Listar todos os voos
+- `GET http://localhost:8080/api/voos/{id}` - Buscar voo por ID
+- `POST http://localhost:8080/api/voos` - Criar novo voo
+- `PUT http://localhost:8080/api/voos/{id}` - Atualizar voo
+- `DELETE http://localhost:8080/api/voos/{id}` - Deletar voo
+- `POST http://localhost:8080/api/voos/{id}/reservar` - Reservar assento
 
-### MS Reservas (8083)
-- `GET /api/reservas` - Listar todas as reservas
-- `GET /api/reservas/{id}` - Buscar reserva por ID
-- `POST /api/reservas` - Criar nova reserva
-- `PATCH /api/reservas/{id}/confirmar` - Confirmar reserva
-- `PATCH /api/reservas/{id}/cancelar` - Cancelar reserva
-- `DELETE /api/reservas/{id}` - Deletar reserva
+### MS Hotéis (via Gateway)
+- `GET http://localhost:8080/api/hoteis` - Listar todos os hotéis
+- `GET http://localhost:8080/api/hoteis/{id}` - Buscar hotel por ID
+- `POST http://localhost:8080/api/hoteis` - Criar novo hotel
+- `PUT http://localhost:8080/api/hoteis/{id}` - Atualizar hotel
+- `DELETE http://localhost:8080/api/hoteis/{id}` - Deletar hotel
+- `GET http://localhost:8080/api/hoteis/{id}/quartos` - Listar quartos do hotel
 
-## 🎯 Funcionalidades do Gateway
+### MS Reservas (via Gateway)
+- `GET http://localhost:8080/api/reservas` - Listar todas as reservas
+- `GET http://localhost:8080/api/reservas/{id}` - Buscar reserva por ID
+- `POST http://localhost:8080/api/reservas` - Criar nova reserva
+- `PATCH http://localhost:8080/api/reservas/{id}/confirmar` - Confirmar reserva
+- `PATCH http://localhost:8080/api/reservas/{id}/cancelar` - Cancelar reserva
+- `DELETE http://localhost:8080/api/reservas/{id}` - Deletar reserva
 
-O Gateway React oferece:
-- ✅ Monitoramento em tempo real das requisições
-- ✅ Log detalhado com timestamp, serviço, método e status
-- ✅ Visualização de dados retornados pelos microsserviços
-- ✅ Interface intuitiva para testar os endpoints
-- ✅ Suporte a CORS configurado
+## 🎯 Funcionalidades
+
+### API Gateway (Spring Cloud Gateway)
+- ✅ Roteamento inteligente para múltiplas instâncias
+- ✅ Load balancing automático
+- ✅ Service discovery via Eureka
+- ✅ Configuração CORS para frontend
+- ✅ Centralização de requisições
+
+### Frontend React
+- ✅ Interface intuitiva para testar endpoints
+- ✅ Comunicação via API Gateway
+- ✅ Monitoramento de requisições
+- ✅ Suporte a todas as operações CRUD
 
 ## 🔧 Tecnologias Utilizadas
 
 ### Backend
-- Spring Boot 4.0.0 / 3.3.5
-- Spring Data JPA
+- Spring Boot 3.3.5
+- Spring Cloud Gateway (API Gateway)
 - Spring Cloud Netflix Eureka (Service Discovery)
-- Spring Cloud Config
+- Spring Data JPA
 - MySQL 8.0
-- WebFlux (para comunicação entre serviços)
+- WebClient (para comunicação entre serviços)
+- Maven
 
 ### Frontend
 - React 19
 - TypeScript
-- Vite
+- Vite (com Rolldown)
 - Fetch API
 
 ## 📝 Estrutura do Projeto
 
 ```
 reserva_viagens_sistemas_distribuidos/
+├── instancias/                    # Scripts de inicialização
+│   ├── start_all_services.bat     # Inicia todos os serviços
+│   ├── 01_start_eureka.bat
+│   ├── 02_start_gateway.bat
+│   ├── 03-06_start_*_instancia*.bat
+│   ├── 07_start_reservas.bat
+│   └── 08_start_frontend.bat
 ├── src/
 │   ├── backend/
-│   │   ├── ms_voos/
-│   │   ├── ms_hoteis/
-│   │   ├── ms_reservas/
-│   │   └── ms_eureka/
+│   │   ├── ms_eureka/             # Service Discovery
+│   │   ├── ms_gateway/            # API Gateway
+│   │   ├── ms_voos/               # Microsserviço de Voos
+│   │   ├── ms_hoteis/             # Microsserviço de Hotéis
+│   │   └── ms_reservas/           # Microsserviço de Reservas
+│   ├── bkp_db/                    # Backup do banco de dados
 │   └── frontend/
-│       └── gateway/
+│       └── gateway/               # Interface React
 └── README.md
 ```
 
-## 📊 Monitoramento
+## 📊 Monitoramento e Acesso
 
 - **Eureka Dashboard:** http://localhost:8761
-- **MS Voos:** http://localhost:8081/api/voos
-- **MS Hotéis:** http://localhost:8082/api/hoteis
-- **MS Reservas:** http://localhost:8083/api/reservas
-- **Gateway Frontend:** http://localhost:5173
+- **API Gateway:** http://localhost:8080
+- **MS Voos (Instância 1):** http://localhost:8764
+- **MS Voos (Instância 2):** http://localhost:8765
+- **MS Hotéis (Instância 1):** http://localhost:8762
+- **MS Hotéis (Instância 2):** http://localhost:8763
+- **MS Reservas:** http://localhost:8766
+- **Frontend React:** http://localhost:5173
+
+## ⚖️ Load Balancing
+
+O sistema implementa load balancing através do API Gateway:
+- **MS Voos:** 2 instâncias (8764, 8765)
+- **MS Hotéis:** 2 instâncias (8762, 8763)
+- **MS Reservas:** 1 instância (8766)
+
+O Gateway roteia automaticamente as requisições entre as instâncias disponíveis.
 
 ## 🤝 Contribuidores
 
