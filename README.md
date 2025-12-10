@@ -27,8 +27,6 @@ Sistema distribuído para reserva de viagens utilizando arquitetura de microsser
 - Maven
 
 ### 1. Configurar Banco de Dados
-
-Importe o backup do banco de dados:
 1. Abra o MySql Workbench
 2. Logue com seu Usuário e Senha
 3. Depois vá em Server > Data Import
