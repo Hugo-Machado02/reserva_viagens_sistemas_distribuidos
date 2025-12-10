@@ -1,8 +1,8 @@
 @echo off
-title Eureka Server
-echo Iniciando o Servico do Eureka...
+title API Gateway
+echo Iniciando o API Gateway...
 
-set PROJECT_DIR=%~dp0..\src\backend\ms_eureka
+set PROJECT_DIR=%~dp0..\src\backend\ms_gateway
 cd /d "%PROJECT_DIR%"
 
 echo Compilando o projeto...
@@ -15,6 +15,6 @@ if %errorlevel% neq 0 (
 )
 
 echo Executando a aplicacao...
-java -jar target\ms_eureka-0.0.1-SNAPSHOT.jar
+java -jar target\ms_gateway-0.0.1-SNAPSHOT.jar
 
 pause
