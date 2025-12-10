@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: ms-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: ms_voos
+          uri: http://localhost:8764
+          predicates:
+            - Path=/api/voos/**
+        - id: ms_voos2
+          uri: http://localhost:8765
+          predicates:
+            - Path=/api/voos/**
+        - id: ms_hoteis
+          uri: http://localhost:8762
+          predicates:
+            - Path=/api/hoteis/**
+        - id: ms_hoteis2
+          uri: http://localhost:8763
+          predicates:
+            - Path=/api/hoteis/**
+        - id: ms_reservas
+          uri: http://localhost:8766
+          predicates:
+            - Path=/api/reservas/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
