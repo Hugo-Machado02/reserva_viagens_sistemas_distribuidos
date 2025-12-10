@@ -1,7 +1,7 @@
 const API_BASE_URLS = {
-  voos: 'http://localhost:8081/api/voos',
-  hoteis: 'http://localhost:8082/api/hoteis',
-  reservas: 'http://localhost:8083/api/reservas'
+  voos: 'http://localhost:8080/api/voos',
+  hoteis: 'http://localhost:8080/api/hoteis',
+  reservas: 'http://localhost:8080/api/reservas'
 };
 
 export interface LogMessage {
@@ -39,7 +39,7 @@ class ApiService {
       method,
       endpoint,
       status: 'loading',
-      message: `Enviando requisição ${method} para ${service}...`
+      message: `Enviando requisição ${method} para ${service} via Gateway...`
     });
 
     try {
@@ -59,7 +59,7 @@ class ApiService {
           method,
           endpoint,
           status: 'success',
-          message: `✓ Sucesso: ${response.status} ${response.statusText}`,
+          message: `✓ Sucesso: ${response.status} ${response.statusText} via Gateway`,
           data
         });
         return data;
@@ -72,7 +72,7 @@ class ApiService {
         method,
         endpoint,
         status: 'error',
-        message: `✗ Erro: ${error.message}`
+        message: `✗ Erro: ${error.message} via Gateway`
       });
       throw error;
     }
