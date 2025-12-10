@@ -28,12 +28,15 @@ Sistema distribuído para reserva de viagens utilizando arquitetura de microsser
 
 ### 1. Configurar Banco de Dados
 
-Crie os bancos de dados no MySQL:
-```sql
-CREATE DATABASE voos_db;
-CREATE DATABASE ms_hoteis;
-CREATE DATABASE reservas_db;
+Importe o backup do banco de dados:
+```bash
+mysql -u root -p < src/bkp_db/backup_db.sql
 ```
+
+Este comando criará automaticamente os bancos:
+- `voos_db` - com tabelas de voos e assentos
+- `hoteis_db` - com tabelas de hotéis e quartos  
+- `reservas_db` - com tabela de reservas
 
 Configure o usuário e senha no arquivo:
 - `src/backend/ms_reservas/src/main/resources/application.properties`
