@@ -38,7 +38,9 @@ Este comando criará automaticamente os bancos:
 - `hoteis_db` - com tabelas de hotéis e quartos  
 - `reservas_db` - com tabela de reservas
 
-Configure o usuário e senha no arquivo:
+Configure o usuário e senha nos arquivos application.properties de todos os microsserviços:
+- `src/backend/ms_voos/src/main/resources/application.properties`
+- `src/backend/ms_hoteis/src/main/resources/application.properties`
 - `src/backend/ms_reservas/src/main/resources/application.properties`
 
 ### 2. Execução Automática (Recomendado)
