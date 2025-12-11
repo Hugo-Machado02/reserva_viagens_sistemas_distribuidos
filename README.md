@@ -2,6 +2,8 @@
 
 Sistema distribuído para reserva de viagens utilizando arquitetura de microsserviços com Spring Boot, Spring Cloud Gateway e React.
 
+Link para o Vídeo: [Clique Aqui!](https://drive.google.com/drive/folders/14XlvT9LQZOZNklBC1MrpgVhkKKuInge_?usp=sharing)
+
 ## 🏗️ Arquitetura
 
 ### Backend (Microsserviços)
